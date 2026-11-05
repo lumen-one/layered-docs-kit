@@ -21,14 +21,14 @@
 - 前置产物：<docs-plan/xxx.md，绝对路径或项目内相对路径>
 
 ## 写入范围
-- <逐条列出允许写入的路径>
+- <按「填充规则」表的写入范围列逐条展开>
 
 ## 本批次
-<仅 migrate 填写：ID、标题、files、acceptance；其他任务写「无」>
+<仅 migrate 填写：ID、标题、文件、批次验收、deletion（true/false）；其他任务写「无」>
 
 ## 完成
 1. 按任务卡步骤执行。
-2. 对照任务卡「验收」逐条自检，未通过的不要隐藏。
+2. 对照任务卡的「验收」逐条自检，未通过的不要隐藏。
 3. 回报：产物路径、自检结果、未决问题。
 
 ## 禁止
@@ -39,16 +39,18 @@
 
 ## 填充规则
 
-| 任务 | 任务卡 | 必读参考 | 前置产物 |
-|---|---|---|---|
-| `recon` | `cards/00-recon.md` | `reference/layers.md`（作用域、分层模型） | 无 |
-| `proposal` | `cards/01-proposal.md` | `reference/layers.md`（全部）、`decisions.md`（路径与状态、文件结构）、`bilingual.md`（三件套、范围、排除项）、`checks.md`（默认组合） | `docs-plan/recon.md` |
-| `skeleton` | `cards/02-skeleton.md` | `reference/layers.md`（作用域、指令文件分层、模块 README 契约） | `proposal.md`、`batches.json` |
-| `migrate:<id>` | `cards/03-migrate.md` | `reference/layers.md`（一个事实一个家、写作规则、维护规则表） | `proposal.md` 的事实归属表、本批 `files` |
-| `checks` | `cards/04-checks.md` | `reference/checks.md`（全部） | `skeleton-report.md`、提案第 5 节 |
-| `audit` | `cards/05-audit.md` | 四份参考的指定小节 | 全部 `docs-plan/` 产物 |
+| 任务 | 任务卡 | 必读参考 | 前置产物 | 写入范围 |
+|---|---|---|---|---|
+| `recon` | `cards/00-recon.md` | `reference/layers.md`（作用域、分层模型） | 无 | `docs-plan/recon.md` |
+| `proposal` | `cards/01-proposal.md` | `reference/layers.md`（全部）、`decisions.md`（路径与状态、文件结构）、`bilingual.md`（三件套、配对范围、排除项）、`checks.md`（默认组合） | `docs-plan/recon.md` | `docs-plan/proposal.md`、`docs-plan/batches.json` |
+| `skeleton` | `cards/02-skeleton.md` | `reference/layers.md`（作用域、模块 README 契约）、`decisions.md`（路径与状态、文件结构） | `proposal.md`、`batches.json` | 提案第 1、3 节列出的指令文件、层级目录、模板、决策记录目录；`docs-plan/skeleton-report.md` |
+| `migrate:<id>` | `cards/03-migrate.md` | `reference/layers.md`（一个事实一个家、写作规则、维护规则表） | `proposal.md` 第 4 节事实归属表、本批 `files` | 本批 `files`、`docs-plan/migrate/<batchId>.md` |
+| `checks` | `cards/04-checks.md` | `reference/checks.md`（全部） | `skeleton-report.md`、`proposal.md` 第 5 节 | 提案第 5 节列出的检查脚本与夹具目录、现有入口文件、`docs-plan/checks-report.md` |
+| `audit` | `cards/05-audit.md` | `layers.md`（写作规则、维护规则表、审计清单）、`decisions.md`（维护与归档）、`bilingual.md`（检查要点）、`checks.md`（检查项） | 全部 `docs-plan/` 产物 | `docs-plan/audit-report.md`、交付物五项、维护规则表所在指令文件 |
 
 ## 示例：侦察任务
+
+示例路径为 Windows 写法；其他平台替换为对应的绝对路径。
 
 ```text
 你是「文档体系建立」的子会话，任务 recon。
@@ -107,6 +109,7 @@ C:\kit\docs-management-kit\cards\03-migrate.md
 - 标题：迁移架构页与核心模块 README
 - 文件：docs/architecture.md、packages/core/README.md
 - 批次验收：死链检查通过；每个删除项有替代位置
+- 删除类：deletion：false
 
 ## 完成
 1. 按任务卡步骤执行。
@@ -123,7 +126,7 @@ C:\kit\docs-management-kit\cards\03-migrate.md
 
 ### 有子代理工具
 
-用工具本身的任务调用方式，把上面的通用模板作为 prompt。能给子代理独立上下文时，不要把它塞进主会话继续做。一次只发一个任务；`checks` 阶段可以并发发多个独立检查器。
+用工具本身的任务调用方式，把上面的通用模板作为 prompt。能给子代理独立上下文时，不要把它塞进主会话继续做。一次只发一个任务；`checks` 阶段可以并发发多个独立检查器，并发时每个子会话只写自己的脚本与夹具，不改入口文件，入口由最后的串行会话统一接入。
 
 ### 只能开新会话
 
@@ -138,19 +141,21 @@ C:\kit\docs-management-kit\cards\03-migrate.md
 可以让主会话生成一个状态读写脚本，但脚本不得承担派发。最低命令集：
 
 ```text
-status            打印阶段表与批次表
-next              输出当前任务的卡路径、必读、写入范围、批次定义
-done <taskId>     更新状态，校验产物存在
-block <taskId>    标记阻塞并记录原因
-unblock <taskId>  解除阻塞
-skip <taskId>     标记跳过
-approve proposal  记录用户确认
-validate          检查已完成阶段的产物是否存在
+status                打印阶段表与批次表
+next                  输出当前任务的卡路径、必读、写入范围、批次定义
+done <taskId>         更新状态，校验产物存在
+confirm-batch <id>    记录删除类批次的用户确认
+block <taskId>        标记阻塞并记录原因
+unblock <taskId>      解除阻塞
+skip <taskId>         标记跳过
+approve proposal      记录用户确认
+validate              检查已完成阶段的产物是否存在
 ```
 
 生成规则：
 
 - 只读写 `docs-plan/state.md` 或同目录的 json，不调用任何 Agent API。
+- `confirm-batch` 只把批次表对应行的备注改为 `已确认 YYYY-MM-DD`。
 - 语言按项目现有工具链选，Node、Python、Bash 均可；不要引入新运行时。
 - `next` 只输出结构化信息，不拼自然语言 prompt；prompt 仍由主会话按通用模板生成。
 - 生成后先跑 `status` 确认能读到项目根与阶段表，再使用。
@@ -159,8 +164,8 @@ validate          检查已完成阶段的产物是否存在
 
 子会话返回后按顺序检查：
 
-1. 产物路径存在，且包含任务卡「产物结构」列出的必需小节。缺一节即退回。
-2. `git status --short` 的改动都在写入范围内。迁移批次额外执行 `git diff --name-only`，逐行核对 `files`。
-3. 回报中的未决问题为空，或已进入 `docs-plan/blockers.md` 并标记 `blocked`。
+1. 产物路径存在，且包含任务卡「产物结构」「报告结构」或「提案结构」列出的必需小节。缺一节即退回。
+2. `git status --short` 的改动都在写入范围内（含未跟踪的新建文件）。迁移批次额外执行 `git diff --name-only` 核对已跟踪文件，再用 `git status --short` 补查新建文件。
+3. 回报中的未决问题为空，或已由主会话写入 `docs-plan/state.md` 的「阻塞」表并标记 `blocked`。
 
 三项都通过才更新 `state.md`。不要凭子会话的「已完成」直接改状态。

@@ -13,10 +13,10 @@
 - `lifecycle`：`proposed` / `implemented` / `rejected` / `archived`。
 - `class` 取闭集：`feature` / `bug-fix` / `simplification` / `architecture` / `process` / `testing`。新增类别必须同时更新检查器与本规范。
 - 日期取「首次提出」日期，取不到时以首个提交为准。
-- `archived` 只接收已实现记录，路径不带 `implemented` 层，即 `archived/{class}/yyyy-mm-dd-topic-title.md`。
+- `archived` 只接收已实现记录，路径不带 `implemented` 层，即 `archived/{class}/yyyy-mm-dd-topic-title.md`；其 `Status` 仍为 `implemented`，另带 `Archived: YYYY-MM-DD`。
 - 不建 `INDEX.md`：路径已是索引，再建一份只会重复路径信息并制造无关冲突。
 
-状态与所在目录一一对应，检查器交叉核对。
+状态与目录的映射固定为：`proposed/` → `proposed`，`implemented/` → `implemented`，`rejected/` → `rejected`，`archived/` → `implemented` 加 `Archived:` 行。检查器按这张映射表交叉核对，不要求目录名等于状态名。
 
 ## 文件结构
 
@@ -70,15 +70,16 @@ Status: <状态>
 - 一条记录不改写成另一个决定；被取代时新建记录并双向链接，旧记录保持原样。
 - 一条记录被完全取代、不再承载任何独有理由时，可并入当前归属记录后删除。删除前必须保留每一条独有理由、备选方案、代价、验证方式与已知覆盖缺口，修复所有入站链接，并同时删除中文对照与一致性记录。
 - 归档只对已实现记录执行，条件是决定已完成、理由不太可能再指导未来工作、但仍有历史价值。归档移动完整三件套，保留 `Status: implemented`，在其下插入 `Archived: YYYY-MM-DD`，重录一致性记录，修复入站链接；这些是归档过程中唯一允许的内容改动。
-- 归档后永久冻结：不编辑、不翻译、不重排、不更新、不移动、不删除，也不作为当前行为依据。检查器跳过归档区及其外链；活跃文档可以出于引用历史的目的链接进去。
+- 归档后永久冻结：不编辑、不翻译、不重排、不更新、不移动、不删除，也不作为当前行为依据。检查器跳过归档区的格式、链接与双语检查；唯一例外是下面的冻结清单哈希校验。活跃文档可以出于引用历史的目的链接进去。
+- 归档时更新冻结清单 `<决策记录根>/archived/.frozen.json`：键为相对归档根的路径，值为该文件内容哈希，三件套各记一条。此后只做哈希比对，不重新生成、不修复链接。
 
 ## 检查要点
 
 决策记录格式检查必须覆盖：
 
 - 路径只有合法 `lifecycle` 与 `class`。
-- `Status` 与所在目录一致；`rejected` 带一行原因，其余不带。
+- `Status` 与目录按上方映射表一致；`rejected` 带一行原因，其余不带。
 - 文件头三行格式正确。
 - 对应生命周期的必备章节齐全且顺序正确。
 - `implemented` 中不出现提案期章节。
-- `archived` 目录下的记录带 `Archived:` 行，且内容哈希与冻结清单一致。
+- `archived` 目录下的记录带 `Archived:` 行，且内容哈希与 `.frozen.json` 一致。
