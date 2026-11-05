@@ -1,47 +1,38 @@
 # 文档体系建立：主会话执行协议
 
 > 环境无关。不依赖 Node 或特定脚本运行时，但范围核对与回退需要 git CLI。主会话读完本文件，用自己的子代理能力派发；本套被选中但不能派发时，按同一顺序自己执行。
-> 需要一次性执行时用随套件提供的单体版 `documentation-management-prompt.md`（与本套同级时按相对路径引用；分发到其他位置时以实际路径为准）。两套同时适用时，以本套为准；本套增加了状态文件、批次串行与子会话边界。
+> 需要一次性执行时用单体版 `documentation-management-prompt.md`；两套的适用关系、路径约定与文件清单见 `README.md`。
 
-## 选择哪一套
-
-- 能派发子代理，且预计待迁移文档超过 10 个：用本套。
-- 能派发子代理，但待迁移文档不超过 10 个：本套仍可用；若最终 `batches.json` 为空，可跳过 `migrate`。
-- 只能单会话且不能执行任何命令（含 git）：用单体版，项目很小也适用。
-- 只能单会话但能执行脚本：用本套，并按 `dispatch-templates.md` 的「能执行脚本但没有子代理」一节生成状态脚本。
-
-## 为什么拆
-
-单体版一次会话要连续完成侦察、提案、建层级、迁移、写检查、审计，中途还要等用户确认。实际失败点有三个：上下文被前几个阶段的细节占满，迁移批次和检查实现互相挤占，评审时无法判断某段改动属于哪个阶段。
-
-拆分后每个子会话有明确的前置产物、写入范围和验收标准；主会话只保留进度，不读任务卡正文。总量比单体版多，但单次负载可控。
+> 选型、为什么拆、文件清单与维护约定见 `README.md`。本文件只保留执行协议。
 
 ## 会话模型
 
-- **主会话**：读本文件与 `docs-plan/state.md`，按「取下一任务」选任务，把任务卡路径与输入拼成 prompt 派发，验收产物后更新状态。不读任务卡的步骤、禁止与回报正文，不读参考文件与项目文档；派发与验收所需的写入范围、产物小节见 `dispatch-templates.md` 的「填充规则」，必要时只读任务卡的「产物结构」「报告结构」或「提案结构」一节。
+- **主会话**：读本文件、`docs-plan/state.md`、`reference/acceptance.md`，按「取下一任务」选任务，把任务卡路径与输入拼成 prompt 派发，验收产物后更新状态。不读任务卡的步骤、禁止与回报正文，不读实现参考与项目文档；派发与验收所需的写入范围、产物小节见 `dispatch-templates.md` 的「填充规则」，必要时只读任务卡的「产物结构」「报告结构」或「提案结构」一节。
 - **子会话**：读 1 张任务卡、卡内点名的参考小节、前置产物；只写本任务允许的路径；结束时回报产物路径、自检结果、未决问题。
 - **用户**：在三个决策检查点介入——启动问答（档位与侦察问题）、提案确认、删除类迁移操作确认；每个任务完成后的提交由用户完成，或由用户明确授权主会话完成。
 
 ## 上下文预算
 
-| 角色 | 必读 | 预计行数 |
+| 角色 | 必读 | 负载 |
 |---|---|---|
-| 主会话 | 本文件 + `state.md` + `dispatch-templates.md` 的「通用模板」「填充规则」「主会话验收」 | 300–350 |
-| 侦察子会话 | `cards/00-recon.md` + `reference/layers.md` 两节 + `reference/checks.md` 的「扫描范围与排除」+ 项目文件 | 卡 96 + 参考 50 |
-| 提案子会话 | `cards/01-proposal.md` + `recon.md` + 4 份参考的指定小节 | 卡 130 + 参考 290 |
-| 建层级子会话 | `cards/02-skeleton.md` + `proposal.md` + `reference/layers.md` 四节 + `reference/decisions.md` 三节 + `reference/checks.md` 三项 | 卡 83 + 参考 150 |
-| 迁移子会话（每批） | `cards/03-migrate.md` + 本批次定义 + `reference/layers.md` 三节 + `reference/checks.md` 四项；新建决策记录时加 `decisions.md` 两节 | 卡 89 + 参考 85 |
-| 检查子会话 | `cards/04-checks.md` + `reference/checks.md` + `reference/decisions.md` 的「检查要点」+ `reference/bilingual.md` 的「检查要点」+ `state.md` 的档位 | 卡 77 + 参考 140 |
-| 审计子会话 | `cards/05-audit.md` + 4 份参考的指定小节 + 全部产物 + 项目文档与相关源码 | 卡 76 + 参考 180 + 项目文件（按需） |
+| 主会话 | 本文件 + `state.md` + `dispatch-templates.md` 的「启动问答」「通用模板」「填充规则」 + `reference/acceptance.md` | 中 |
+| 侦察子会话 | `cards/00-recon.md` + `reference/layers.md` 两节 + `reference/thresholds.md` 的档位组合 + `reference/checks.md` 的「扫描范围与排除」+ 项目文件 | 低 |
+| 提案子会话 | `cards/01-proposal.md` + `recon.md` + 5 份参考的指定小节 | 高 |
+| 建层级子会话 | `cards/02-skeleton.md` + `proposal.md` + `reference/layers.md` 四节 + `reference/decisions.md` 三节 + `reference/checks.md` 三项 | 中 |
+| 迁移子会话（每批） | `cards/03-migrate.md` + 本批次定义 + `reference/layers.md` 三节 + `reference/checks.md` 四项；新建决策记录时加 `decisions.md` 两节 | 中 |
+| 检查子会话 | `cards/04-checks.md` + `reference/checks.md` + `reference/thresholds.md` 的档位组合 + `reference/decisions.md` 的「检查要点」+ `reference/bilingual.md` 的「检查要点」+ `proposal.md` 第 5 节 + `state.md` 的档位与阶段备注 | 中高 |
+| 审计子会话 | `cards/05-audit.md` + 4 份参考的指定小节 + 全部产物 + 项目文档与相关源码 | 高 |
+
+负载按必读范围判断，不按固定行数；文件增删后不需要同步本表。
 
 ## 开始
 
-1. 建立 `docs-plan/`，把 `state-template.md` 复制成 `docs-plan/state.md`，填项目根；向用户确认档位（默认 `medium`）和 `cards/00-recon.md` 的 7 个问题，把档位写入状态文件头部，答案写入「待用户确认」表；问完后把启动问答行状态改为 `已确认 YYYY-MM-DD`，未答项仍由 recon 第 8 节跟踪。
-2. 首次派发前先建立干净基线：请用户提交 `docs-plan/state.md`（用户明确授权时主会话提交），再确认 `git status --short` 为空。不干净时请用户提交或 stash，主会话不自行处理。
+1. 建立 `docs-plan/`，把 `state-template.md` 复制成 `docs-plan/state.md`，填项目根；向用户确认档位（默认 `medium`）和 `dispatch-templates.md` 的「启动问答」7 个问题，把档位写入状态文件头部，答案写入「待用户确认」表；问完后把启动问答行状态改为 `已确认 YYYY-MM-DD`，未答项仍由 recon 第 8 节跟踪。
+2. 首次派发前按 `reference/acceptance.md` 的「派发前基线」建立干净基线。
 3. 读 `state.md`，按「取下一任务」确定当前任务。派发所需的写入范围与产物小节从 `dispatch-templates.md` 的「填充规则」取；必要时只读任务卡的「产物结构」「报告结构」或「提案结构」一节。
 4. 按 `dispatch-templates.md` 的通用模板拼 prompt；`recon` 任务把用户答案填入「用户答案」节，`proposal-revise` 任务把用户否决意见填入该节，其他任务填「无」，然后派发给子会话。
-5. 子会话返回后按「验收」核对；通过则更新 `state.md`，不通过则退回。
-6. 每个任务（迁移为每批）验收通过后，必须由用户提交该任务产物（用户明确授权时主会话提交）；工作区干净后才派发下一个任务。
+5. 子会话返回后按 `reference/acceptance.md` 的「产物验收」核对；通过则更新 `state.md`，不通过则退回。
+6. 每个任务（迁移为每批）验收通过后，必须由用户提交该任务产物（用户明确授权时主会话提交）；除 `docs-plan/state.md` 外工作区干净后才派发下一个任务。
 7. 重复直到状态表全部为 `done` 或 `skipped`。
 
 主会话不需要预读整个项目，也不需要通读任务卡；任务卡的步骤与回报由子会话自己读。
@@ -76,7 +67,7 @@
    - `proposal.md` 存在且「提案确认」行状态不是 `已确认 YYYY-MM-DD`：停止并请用户确认，不重新派发。
    - 「提案确认」行状态已确认：把阶段改为 `done`，继续扫描。
 4. 遇到 `migrate`：
-   - 若存在 `in-progress` 批次：视为上次中断，先按「验收」核对；通过则改为 `done`，否则回退该批并改为 `pending`。
+   - 若存在 `in-progress` 批次：视为上次中断，先按 `reference/acceptance.md` 核对；通过则改为 `done`，否则回退该批并改为 `pending`。
    - 若批次表为空且 `batches.json` 的 `batches` 为空数组，把阶段改为 `skipped`，备注写理由，继续扫描。
    - 若第一个非 `done` 批次是 `blocked`：停止派发，把原因交给用户。
    - 取第一个 `pending` 的批次；没有 `pending` 且没有 `in-progress` 时，把阶段改为 `done`，继续扫描。
@@ -87,30 +78,21 @@
 
 ## 派发
 
-用 `dispatch-templates.md` 的通用模板。六条约束：
+用 `dispatch-templates.md` 的通用模板。五条约束：
 
 - 一个 prompt 只含一个任务，不给子会话看后续阶段。
 - 必读清单精确到任务卡路径和参考小节，不用「相关文档」这类模糊说法。
-- 写入范围逐条列出；迁移任务额外要求子会话执行 `git status --short`、`git diff --name-only`、`git ls-files --others --exclude-standard`，并把逐行核对结果写入报告第 5 节。
-- 迁移任务说明入站链接的例外范围：允许在本批 `files` 之外修改文件，但只能改指向本批文件的链接目标，且必须在报告第 3 节逐条列出。
+- 写入范围逐条列出；迁移任务的范围核对命令、入站链接例外与结果记录位置见 `reference/acceptance.md`。
 - 前置产物给绝对路径或项目内相对路径，不粘贴正文。
 - 子会话回报格式由任务卡规定，主会话不另立格式。
 
-不同环境的派发方式、已填示例、单会话降级方式，见 `dispatch-templates.md`。
+不同环境的派发方式、单会话降级方式见 `dispatch-templates.md`；已填示例见 `examples/dispatch-examples.md`。
 
 ## 验收
 
-一个产物只有同时满足三条才算完成：
+验收标准、派发前基线、范围核对命令与例外见 `reference/acceptance.md`。主会话派发前检查基线，子会话返回后按「产物验收」三项核对；通过后更新 `state.md`，不通过退回。
 
-1. **存在且完整**：任务卡声明的产物存在，包含卡内「产物结构」「报告结构」或「提案结构」列出的全部必需小节。
-2. **范围未越界**：`git status --short` 的改动全部落在任务写入范围内（含未跟踪的新建文件）。迁移批次的范围是：本批 `files`、`docs-plan/migrate/<batchId>.md`、报告第 3 节列出的入站链接源文件（这些文件只允许改链接目标）。迁移批次核对 `git diff --name-only` 只涉及上述范围，并用 `git ls-files --others --exclude-standard` 补查新建文件；主会话还要抽查 `git diff -- <入站链接源文件>`，确认报告第 3 节与实际改动一致。
-3. **未决问题已处置**：子会话回报中的未决问题为空，或已由主会话写入 `state.md` 的「阻塞」表并标记 `blocked`。例外：`proposal` 第 10 节的待确认事项随「提案确认」一起询问用户，不写入阻塞表。
-
-派发前基线检查是独立前置条件：`git status --short` 必须为空（主会话在派发前检查）。不干净时停止，不判通过，也不得跳过该检查。
-
-任一不满足就退回，不要用 `done` 跳过。连续两次失败时把失败原因交给用户，由用户决定缩小批次或调整任务卡。
-
-`recon` 验收通过后，若产物第 8 节仍有未答复的待确认项，主会话逐条询问用户，把答复追加到该项下；全部有答复后才更新状态并进入 `proposal`。`proposal` 验收通过后，把提案第 10 节的待确认事项并入「提案确认」一起询问用户。
+`recon` 与 `proposal` 的确认点也由该文件的「例外与确认点」约束。
 
 ## 并行
 
@@ -123,27 +105,15 @@
 | `checks` | 是 | 每个检查器独立成文件，可分别实现后再统一接入 |
 | `audit` | 否 | 需要检查全部完成 |
 
-并行实现检查器时，每个子会话只写自己的脚本、夹具与 `docs-plan/checks/<checkId>.md` 分项报告，不改入口文件，也不写 `checks-report.md`。某个分项失败时，由最后的串行汇总会话把该分项和 `checks-report.md` 的对应行标为失败并单独重试，不影响其他分项。串行会话还必须汇总 `docs-plan/checks-report.md`，统一接入 `package.json` / `Makefile` / CI，并由主会话合并验收。
+并行实现检查器时，每个子会话只写自己的脚本、夹具与 `docs-plan/checks/<checkId>.md` 分项报告，不改入口文件，也不写 `checks-report.md` 与 `docs/checking.md`。某个分项失败时，由最后的串行汇总会话把该分项和 `checks-report.md` 的对应行标为失败并单独重试，不影响其他分项。串行会话还必须汇总 `docs-plan/checks-report.md`、写 `docs/checking.md`，统一接入项目现有的测试或 lint 入口，并由主会话合并验收。
 
 ## 失败与回退
 
-- **子会话无产出或回报缺项**：同一 prompt 重试一次；连续两次失败后把原因交给用户，由用户决定缩小批次、调整任务卡或换实现路径，不重复第三次。
-- **产物越界**：改动尚未提交时，已跟踪文件用 `git restore -- <路径>` 回退，本任务新建的未跟踪文件直接删除；改动已提交时按「迁移批次出错」的已提交分支处理。不要手工保留半成品。
-- **迁移批次出错（尚未提交）**：`git restore -- <本批已跟踪文件与报告第 3 节列出的入站链接源文件>`，删除本批新建文件，重新派发。批次报告一并删除。
-- **迁移批次出错（已经提交）**：不要用 `git restore` 假装回退，它只会恢复到最后一次提交。经用户同意后用 `git revert <提交>` 撤销该批提交，或新建一个修复批次；处理方式写入 `state.md` 的备注。
-- **用户否决提案**：主会话把否决意见写入「待用户确认」表的「提案确认」行，把 `proposal` 阶段改为 `in-progress`，派发提案修订任务；修订验收通过后回到确认点。
-- **检查发现已完成批次失败**：把对应 `migrate` 批次改回 `pending`、`migrate` 阶段改为 `in-progress`，并在 `checks` 阶段备注写「待复跑」；`checks` 阶段保持 `done`，保证同一时间只有一个阶段是 `in-progress`。修复批次验收并提交后，按批次表重新推进 `migrate`；`migrate` 再次全部 `done` 后，把 `checks` 改为 `in-progress`、备注改为「复跑」，按 `04-checks` 的复跑模式派发，只复跑受影响检查，不重建检查器；复跑通过后把 `checks` 改回 `done` 并清空备注。已提交批次按上一条的已提交分支处理。不得直接在 `checks` 阶段改被检查文档。
-- **检查无法通过且规则本身有误**：记录到 `state.md` 的阻塞表，由用户决定改规则还是改内容。不得私自删除检查项。
-- **提案漏掉档位检查项**：`checks` 阶段发现提案第 5 节未覆盖档位默认组合时，停止派发，把 `proposal` 阶段改回 `in-progress`、`checks` 改为 `pending`；按 `proposal-revise` 补齐检查项，重新确认提案后再派发 `checks`。不得由 `checks` 自行扩大范围。
+按 `reference/acceptance.md` 的「失败与回退」处理；状态变更仍由主会话写入 `state.md`。
 
 ## 裁剪
 
-档位只影响检查默认组合与建议启用的层级，不改变阶段顺序：
-
-- `basic`：单人小项目。建议 L0a + L1 + L2，不建 L5；检查只上 1 死链、2 锚点、3 模块 README 章节结构。
-- `medium`：默认值。增加 L5、L7；检查增加 4 决策记录格式、5 段落内不硬换行、6 字数预算、7 引用。
-- `multilingual`：在 `medium` 上增加 8 双语一致性、9 语言切换器。
-- 有生成物时统一增加 10 生成物新鲜度；11、12、13 保持可选。
+档位只影响建议层级与检查默认组合，不改变阶段顺序；档位表见 `reference/thresholds.md` 的「档位组合」。
 
 只有两种情况可以跳过阶段，其余阶段不可跳过：
 
@@ -161,26 +131,9 @@
 | `proposal-revise` | `cards/01-proposal.md` | 同上（覆盖修订） | **是** | 否 |
 | `skeleton` | `cards/02-skeleton.md` | 项目内层级与模板、`docs-plan/skeleton-report.md` | 否 | 否 |
 | `migrate` | `cards/03-migrate.md` | 批次内文档、`docs-plan/migrate/<batchId>.md` | 文件级删除时是 | 否 |
-| `checks` | `cards/04-checks.md` | 检查脚本、`docs-plan/checks/<checkId>.md`、CI 入口、`docs-plan/checks-report.md` | 否 | 是（独立检查器） |
+| `checks` | `cards/04-checks.md` | 检查脚本、`docs-plan/checks/<checkId>.md`、`docs/checking.md`、现有测试或 lint 入口、`docs-plan/checks-report.md` | 否 | 是（独立检查器；汇总串行） |
 | `audit` | `cards/05-audit.md` | `docs-plan/audit-report.md`、交付物五项 | 否 | 否 |
 
 ## 文件清单
 
-```text
-docs-management-kit/
-  INDEX.md                 本文件，主会话每次必读
-  state-template.md        复制到项目后作为进度表
-  dispatch-templates.md    派发模板与各环境做法
-  cards/
-    00-recon.md
-    01-proposal.md
-    02-skeleton.md
-    03-migrate.md
-    04-checks.md
-    05-audit.md
-  reference/
-    layers.md              作用域、分层、README 契约、写作规则、维护表
-    decisions.md           决策记录全生命周期
-    bilingual.md           双语配对
-    checks.md              自动检查目录与接入规则
-```
+见 `README.md`。

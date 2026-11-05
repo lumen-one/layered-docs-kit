@@ -2,6 +2,20 @@
 
 > 主会话读本文件；子会话不需要读。
 
+## 启动问答
+
+主会话在首次派发前向用户问齐以下 7 个问题，答案填入通用模板的「用户答案」节；档位默认 `medium`，只能取 `basic` / `medium` / `multilingual` 之一。
+
+1. 项目规模与模块边界（单包、monorepo、多服务）。
+2. 文档主要读者：内部开发者、外部用户、AI Agent，还是都要。
+3. 是否需要多语言；需要哪些语言。
+4. 是否已有对外文档站。
+5. 可接入的 CI / pre-commit 体系与语言。
+6. 本次覆盖范围：全项目，还是先做一个核心模块试点。
+7. 谁是文档所有者，谁批例外与上限调整；子树是否各有所有者。
+
+未答项写入 `docs-plan/state.md` 的「待用户确认」表，由 `00-recon` 第 8 节跟踪。
+
 ## 通用模板
 
 把占位符替换后整段交给子会话。结构固定，不要增删小节。
@@ -21,7 +35,7 @@
 - 前置产物：<docs-plan/xxx.md，绝对路径或项目内相对路径>
 
 ## 用户答案
-<recon 填写档位与 7 个问题的用户答案；proposal-revise 填写用户否决意见；其他任务写「无」>
+<recon 填写档位与 7 个问题的用户答案；proposal-revise 填写用户否决意见或 checks 补项要求；其他任务写「无」>
 
 ## 写入范围
 - <按「填充规则」表的写入范围列逐条展开>
@@ -45,113 +59,29 @@
 
 | 任务 | 任务卡 | 必读参考 | 前置产物 | 写入范围 |
 |---|---|---|---|---|
-| `recon` | `cards/00-recon.md` | `reference/layers.md`（作用域、分层模型）、`checks.md`（扫描范围与排除） | 无 | `docs-plan/recon.md` |
-| `proposal` / `proposal-revise` | `cards/01-proposal.md` | `reference/layers.md`（全部）、`decisions.md`（路径与状态、文件结构、检查要点）、`bilingual.md`（三件套、配对范围、排除项、检查要点）、`checks.md`（默认组合、检查项） | `docs-plan/recon.md`；修订时加现有 `proposal.md`、`batches.json` | `docs-plan/proposal.md`、`docs-plan/batches.json` |
-| `skeleton` | `cards/02-skeleton.md` | `reference/layers.md`（作用域、分层模型、L7 评审规则、模块 README 契约）、`decisions.md`（路径与状态、文件结构、检查要点）、`checks.md`（检查项 3、4、5） | `docs-plan/proposal.md`、`docs-plan/batches.json` | 提案第 1 节列出的 `docs/architecture.md`、层级索引、模板、决策记录目录、L7 评审规则页与每份 `AGENTS.md` 的 `CLAUDE.md`；`docs-plan/skeleton-report.md` |
-| `migrate:<id>` | `cards/03-migrate.md` | `reference/layers.md`（一个事实一个家、写作规则、维护规则表）、`checks.md`（检查项 1、2、3、5）；新建决策记录时加 `decisions.md`（路径与状态、文件结构） | `docs-plan/proposal.md` 第 4 节事实归属表、本批 `files` | 本批 `files`、`docs-plan/migrate/<batchId>.md`、报告第 3 节列出的入站链接源文件（这些文件只允许改链接目标）；新建决策记录须在本批 `files` 内，未列入时停止回报，由主会话追加后重派 |
-| `checks` | `cards/04-checks.md` | `reference/checks.md`（全部）、`reference/decisions.md`（检查要点）、`reference/bilingual.md`（检查要点） | `state.md` 的档位、`skeleton-report.md`、`proposal.md` 第 5 节 | 提案第 5 节列出的检查脚本与夹具路径、`docs-plan/checks/<checkId>.md`、`docs-plan/checks-report.md`、启用检查 7 时的 `docs/references-allowlist.yaml`；串行汇总会话才可写入口文件与 `checks-report.md`，并行子会话只写自己的脚本、夹具与分项报告 |
-| `audit` | `cards/05-audit.md` | `layers.md`（写作规则、维护规则表、审计清单）、`decisions.md`（维护与归档）、`bilingual.md`（检查要点）、`checks.md`（扫描范围与排除、检查项） | 全部已产生的 `docs-plan/` 产物 | `docs-plan/audit-report.md`、交付物五项、维护规则表所在指令文件 |
+| `recon` | `cards/00-recon.md` | `reference/layers.md`（作用域、分层模型）、`reference/thresholds.md`（档位组合）、`reference/checks.md`（扫描范围与排除） | 无 | `docs-plan/recon.md` |
+| `proposal` / `proposal-revise` | `cards/01-proposal.md` | `reference/layers.md`（全部）、`reference/thresholds.md`（档位组合、数量阈值）、`reference/decisions.md`（路径与状态、文件结构、检查要点）、`reference/bilingual.md`（三件套、配对范围、排除项、检查要点）、`reference/checks.md`（检查项） | `docs-plan/recon.md`；修订时加现有 `proposal.md`、`batches.json` | `docs-plan/proposal.md`、`docs-plan/batches.json` |
+| `skeleton` | `cards/02-skeleton.md` | `reference/layers.md`（作用域、分层模型、L7 评审规则、模块 README 契约）、`reference/decisions.md`（路径与状态、文件结构、检查要点）、`reference/checks.md`（检查项 3、4、5） | `docs-plan/proposal.md`、`docs-plan/batches.json` | 提案第 1 节列出的 `docs/architecture.md`、层级索引、模板、决策记录目录、L7 评审规则页、每份 `AGENTS.md` 及其 `CLAUDE.md`；`docs-plan/skeleton-report.md` |
+| `migrate:<id>` | `cards/03-migrate.md` | `reference/layers.md`（一个事实一个家、写作规则、维护规则表）、`reference/checks.md`（检查项 1、2、3、5）；新建决策记录时加 `reference/decisions.md`（路径与状态、文件结构）；启用双语时加 `reference/bilingual.md`（三件套、配对范围、检查要点） | `docs-plan/proposal.md` 第 4 节事实归属表、本批 `files` | 本批 `files`、`docs-plan/migrate/<batchId>.md`、报告第 3 节列出的入站链接源文件（这些文件只允许改链接目标）；新建决策记录或双语配对文件须在本批 `files` 内，未列入时停止回报，由主会话追加到 `batches.json` 并请用户确认后重派 |
+| `checks`（并行分项） | `cards/04-checks.md` | `reference/checks.md`（全部）、`reference/thresholds.md`（档位组合）、`reference/decisions.md`（检查要点）、`reference/bilingual.md`（检查要点） | `state.md` 的档位、`skeleton-report.md`、`proposal.md` 第 5 节 | 提案第 5 节列出的检查脚本与夹具路径、`docs-plan/checks/<checkId>.md`、启用检查 7 时的 `docs/references-allowlist.yaml`；不改入口文件，不写 `checks-report.md` 与 `docs/checking.md` |
+| `checks`（串行汇总） | `cards/04-checks.md` | `reference/checks.md`（全部）、`reference/thresholds.md`（档位组合）、`reference/decisions.md`（检查要点）、`reference/bilingual.md`（检查要点）、`proposal.md` 第 5 节 | 全部分项报告 | `docs-plan/checks-report.md`、`docs/checking.md`、`docs-plan/checks/<checkId>.md`（仅改汇总所需的失败标记）、项目现有测试或 lint 入口（按工具链，如 `package.json` scripts、`Makefile`、CI 配置） |
+| `audit` | `cards/05-audit.md` | `reference/layers.md`（写作规则、维护规则表、审计清单）、`reference/decisions.md`（维护与归档）、`reference/bilingual.md`（检查要点）、`reference/checks.md`（扫描范围与排除、检查项） | 全部已产生的 `docs-plan/` 产物 | `docs-plan/audit-report.md`、交付物五项、维护规则表所在指令文件 |
 
-`proposal-revise` 复用 `proposal` 的任务卡与写入范围，不新建文件；任务卡收到「用户答案」中的否决意见时进入修订模式。
+`checks` 的两行同属一个阶段：阶段状态只记录一次；并行分项完成后由串行汇总会话收口，并行子会话不写汇总报告、`docs/checking.md` 与入口文件。
+
+`proposal-revise` 复用 `proposal` 的任务卡与写入范围，不新建文件；任务卡收到「用户答案」中的否决意见或 `checks` 补项要求时进入修订模式。
 
 `checks` 的复跑模式：派发时在任务卡后追加「复跑」说明，必读收窄为 `checks.md` 的对应检查项、`state.md` 的阶段备注与受影响批次报告，写入范围只含分项报告与 `checks-report.md` 第 5 节；不得重建检查器或修改入口。
 
-## 示例：侦察任务
+## 示例
 
-示例路径为 Windows 写法；其他平台替换为对应的绝对路径。
-
-```text
-你是「文档体系建立」的子会话，任务 recon。
-
-## 项目根
-D:\work\my-project
-
-## 任务卡
-C:\kit\docs-management-kit\cards\00-recon.md
-
-## 必读
-- 任务卡：C:\kit\docs-management-kit\cards\00-recon.md
-- 参考：C:\kit\docs-management-kit\reference\layers.md 的「作用域」「分层模型」；C:\kit\docs-management-kit\reference\checks.md 的「扫描范围与排除」
-- 前置产物：无
-
-## 用户答案
-- 档位：medium
-- 项目规模：单包
-- 读者：内部开发者
-- 多语言：否
-- 对外文档站：无
-- CI：GitHub Actions + pnpm
-- 覆盖范围：全项目
-- 文档所有者：架构组；子树无单独所有者
-
-## 写入范围
-- docs-plan/recon.md
-
-## 本批次
-无
-
-## 完成
-1. 按任务卡步骤执行。
-2. 对照任务卡「验收」逐条自检，未通过的不要隐藏。
-3. 回报：产物路径、自检结果、未决问题。
-
-## 禁止
-- 读取或修改本任务之外的阶段产物。
-- 修改写入范围之外的项目文件。
-- 执行 `git add`、`git commit`、`git push` 或改写历史；提交由用户或主会话按协议完成。
-- 用「大致完成」替代验收项。
-```
-
-## 示例：迁移批次
-
-```text
-你是「文档体系建立」的子会话，任务 migrate:core-architecture。
-
-## 项目根
-D:\work\my-project
-
-## 任务卡
-C:\kit\docs-management-kit\cards\03-migrate.md
-
-## 必读
-- 任务卡：C:\kit\docs-management-kit\cards\03-migrate.md
-- 参考：C:\kit\docs-management-kit\reference\layers.md 的「一个事实一个家」「写作规则」「维护规则表」；C:\kit\docs-management-kit\reference\checks.md 的检查项 1、2、3、5
-- 前置产物：docs-plan/proposal.md 的事实归属表
-
-## 用户答案
-无
-
-## 写入范围
-- docs/architecture.md
-- packages/core/README.md
-- README.md（仅修复指向本批文件的入站链接）
-- docs-plan/migrate/core-architecture.md
-
-## 本批次
-- ID：core-architecture
-- 标题：迁移架构页与核心模块 README
-- 文件：docs/architecture.md、packages/core/README.md
-- 批次验收：死链按判定方式人工核对通过（checks 阶段复跑）；每个删除项有替代位置
-- 删除类（deletion）：false
-- 确认记录：不适用（deletion=false）
-
-## 完成
-1. 按任务卡步骤执行。
-2. 对照任务卡「验收」逐条自检，未通过的不要隐藏。
-3. 回报：产物路径、自检结果、未决问题。
-
-## 禁止
-- 读取或修改本任务之外的阶段产物。
-- 修改写入范围之外的项目文件。
-- 执行 `git add`、`git commit`、`git push` 或改写历史；提交由用户或主会话按协议完成。
-- 用「大致完成」替代验收项。
-```
+已填示例见 `examples/dispatch-examples.md`；主会话默认不读。
 
 ## 不同环境怎么派发
 
 ### 有子代理工具
 
-用工具本身的任务调用方式，把上面的通用模板作为 prompt。能给子代理独立上下文时，不要把它塞进主会话继续做。一次只发一个任务；`checks` 阶段可以并发发多个独立检查器，并发时每个子会话只写自己的脚本、夹具与 `docs-plan/checks/<checkId>.md` 分项报告，不改入口文件，不写 `checks-report.md`；入口由最后的串行会话统一接入并汇总 `checks-report.md`。
+用工具本身的任务调用方式，把上面的通用模板作为 prompt。能给子代理独立上下文时，不要把它塞进主会话继续做。一次只发一个任务；`checks` 阶段可以并发发多个独立检查器，并发时每个子会话只写自己的脚本、夹具与 `docs-plan/checks/<checkId>.md` 分项报告，不改入口文件，不写 `checks-report.md` 与 `docs/checking.md`；入口由最后的串行会话统一接入，并汇总 `checks-report.md` 与 `docs/checking.md`。
 
 ### 只能开新会话
 
@@ -159,7 +89,7 @@ C:\kit\docs-management-kit\cards\03-migrate.md
 
 ### 只能单会话
 
-主会话按 `state.md` 的顺序自己执行任务卡。每到任务边界，先按「验收」自检并更新状态，再进入下一个任务。每完成一个任务，请用户提交该任务产物；用户明确授权时主会话提交。上下文接近上限时，把当前任务的产物与未决问题写进 `docs-plan/`，新会话只读 `state.md` 与对应产物继续。
+主会话按 `state.md` 的顺序自己执行任务卡。每到任务边界，先按 `reference/acceptance.md` 自检并更新状态，再进入下一个任务。每完成一个任务，请用户提交该任务产物；用户明确授权时主会话提交。上下文接近上限时，把当前任务的产物与未决问题写进 `docs-plan/`，新会话只读 `state.md` 与对应产物继续。
 
 ### 能执行脚本但没有子代理
 
@@ -173,33 +103,38 @@ begin-batch <id>      标记批次 in-progress；migrate 阶段同时置 in-prog
 complete-batch <id>   标记批次 done，校验批次报告存在；全部批次 done 时 migrate 阶段置 done
 done <taskId>         更新状态，校验产物存在；不接受 proposal
 confirm-batch <id>    记录删除类批次的用户确认
-block <taskId>        标记阻塞并记录原因
-unblock <taskId>      解除阻塞
-skip <taskId>         标记跳过（仅 migrate 与 checks 可用）
+block <taskId>        标记阶段阻塞并记录原因
+unblock <taskId>      解除阶段阻塞
+block-batch <id>      标记批次阻塞并记录原因
+unblock-batch <id>    解除批次阻塞
+skip <taskId> <reason> 标记跳过（仅 migrate 与 checks 可用），原因写入备注
 approve proposal      记录用户确认
 reject proposal       记录否决并标记待修订
+reopen <taskId>       把阶段从 done 改回 in-progress（仅复跑/修复用）
+reopen-batch <id>     把批次从 done 改回 pending（仅修复用）
 validate              检查已完成阶段的产物是否存在
 ```
 
 生成规则：
 
 - 只读写 `docs-plan/state.md` 或同目录的 json，不调用任何 Agent API。
-- `start` 把任务（或 `migrate` 批次）改为 `in-progress` 并写开始日期；`migrate` 阶段在 `begin-batch` 时同时改为 `in-progress`。
+- `start` 只接受阶段任务；批次用 `begin-batch`，不要用 `start <batchId>`。
+- `block` / `unblock` 只改阶段表；`block-batch` / `unblock-batch` 只改批次表，两者不得互相替代。
+- `unblock` / `unblock-batch` 把目标改回 `in-progress`，等待重派；需要回到 `pending` 时由主会话按验收结果手动改。
+- `reopen` / `reopen-batch` 仅用于复跑或修复，必须先在 `state.md` 备注写原因。
+- `next` 遇到 `proposal` 阶段为 `pending`：确认行为 `待修订` 时输出 `proposal-revise`；确认行为其他未确认值时输出「等待用户确认提案」，不输出派发指令。
+- `start` 把阶段任务改为 `in-progress` 并写开始日期；`migrate` 阶段在 `begin-batch` 时同时改为 `in-progress`。
 - `complete-batch` 只接受迁移批次，必须校验 `docs-plan/migrate/<batchId>.md` 存在；全部批次为 `done` 时把 `migrate` 阶段置为 `done`。
 - `done` 必须校验任务卡声明的产物存在；`proposal` 只能由 `approve proposal` 置为 `done`，`done proposal` 直接报错。
 - `confirm-batch` 只把批次表对应行的备注追加为 `已确认 YYYY-MM-DD`。
-- `approve proposal` 把待用户确认表对应行改为 `已确认 YYYY-MM-DD`，并把 `proposal` 阶段改为 `done`。
+- `approve proposal` 把待用户确认表对应行改为 `已确认 YYYY-MM-DD`，把 `proposal` 阶段改为 `done`，并按 `docs-plan/batches.json` 展开批次表；`batches` 为空数组时删除占位行并把 `migrate` 置为 `skipped`。
 - `reject proposal` 把该行改为 `待修订`，并把 `proposal` 阶段改为 `in-progress`。
+- `validate` 只校验 `state.md` 阶段表「产物」列中已 `done` 的路径存在，不读任务卡。
+- `skip` 必须带原因参数，写入阶段表备注。
 - 语言按项目现有工具链选，Node、Python、Bash 均可；不要引入新运行时。
 - `next` 只输出结构化信息，不拼自然语言 prompt；prompt 仍由主会话按通用模板生成。
 - 生成后先跑 `status` 确认能读到项目根与阶段表，再使用。
 
 ## 主会话验收
 
-派发前先确认 `git status --short` 为空；不干净时不派发。子会话返回后按顺序检查：
-
-1. 产物路径存在，且包含任务卡「产物结构」「报告结构」或「提案结构」列出的必需小节。缺一节即退回。
-2. `git status --short` 的改动都在写入范围内（含未跟踪的新建文件）。迁移批次的范围是：本批 `files`、`docs-plan/migrate/<batchId>.md`、报告第 3 节列出的入站链接源文件（仅允许改链接目标）。先执行 `git diff --name-only` 核对已跟踪文件，再用 `git ls-files --others --exclude-standard` 补查新建文件；对入站链接源文件执行 `git diff -- <路径>` 抽查，确认只改了链接目标且与报告第 3 节一致。
-3. 回报中的未决问题为空，或已由主会话写入 `docs-plan/state.md` 的「阻塞」表并标记 `blocked`（`proposal` 第 10 节的待确认事项例外，随提案确认点处理）。
-
-三项都通过才更新 `state.md`。不要凭子会话的「已完成」直接改状态。验收通过后请用户提交本任务产物（用户明确授权时主会话提交）；未提交不得派发下一个任务。
+验收标准、派发前基线、范围核对与回退见 `reference/acceptance.md`。主会话按该文件执行「派发前基线」「产物验收」「范围核对命令」三节，不另立标准。

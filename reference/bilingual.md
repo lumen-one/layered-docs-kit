@@ -1,6 +1,6 @@
 # 参考：双语配对
 
-> 被 `01-proposal`、`05-audit` 引用。仅在项目需要多语言时启用。
+> 被 `01-proposal`、`04-checks`、`05-audit` 引用。仅在项目需要多语言时启用。
 
 ## 三件套
 
@@ -26,9 +26,9 @@
 哈希覆盖该节所有顶层块，排除围栏代码块与生成区；这两类内容必须在两侧逐字节一致，由结构检查单独约束（见「检查要点」第 4 项）。没有剩余块的章节不记条目。记录由命令生成，禁止手写；人工只负责确认「这两段确实对应」。重新记录，等于声明这一对当前一致。
 
 ```sh
-# 示例形态；实际命令由提案第 5 节确定，未确定时不得启用检查 8
-pnpm run docs:pair --write docs/architecture.md
-pnpm run docs:pair docs/architecture.md   # 只校验
+# 示例形态；命令名与调用方式由提案第 5 节按项目工具链确定，未确定时不得启用检查 8
+<docs:pair 写入命令> docs/architecture.md
+<docs:pair 校验命令> docs/architecture.md
 ```
 
 ## 结构镜像

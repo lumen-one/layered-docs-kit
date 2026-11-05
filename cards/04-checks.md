@@ -1,8 +1,8 @@
 # 任务卡 04：自动化检查
 
-> 读取范围：本卡；`reference/checks.md`（全部）；`reference/decisions.md` 的「检查要点」；`reference/bilingual.md` 的「检查要点」；`docs-plan/proposal.md` 的第 5 节；`docs-plan/state.md` 的档位字段与阶段备注。
+> 读取范围：本卡；`reference/checks.md`（全部）；`reference/thresholds.md` 的「档位组合」；`reference/decisions.md` 的「检查要点」；`reference/bilingual.md` 的「检查要点」；`docs-plan/proposal.md` 的第 5 节；`docs-plan/state.md` 的档位字段与阶段备注。
 > 前置：层级已建立，检查清单已在提案中确定。
-> 产出：检查脚本、测试夹具、`docs-plan/checks/<checkId>.md`、现有入口的接入改动；`docs-plan/checks-report.md`；启用检查 7 时的 `docs/references-allowlist.yaml`。脚本与夹具路径取提案第 5 节。
+> 产出：检查脚本、测试夹具、`docs-plan/checks/<checkId>.md`、现有入口的接入改动；`docs-plan/checks-report.md`、`docs/checking.md`；启用检查 7 时的 `docs/references-allowlist.yaml`。脚本与夹具路径取提案第 5 节。
 > 禁止：为让检查通过而删除规则或修改被检查内容。
 
 ## 目标
@@ -11,13 +11,13 @@
 
 ## 步骤
 
-1. 按 `state.md` 的档位取默认组合，对照提案第 5 节确认范围。提案清单未覆盖档位默认组合时，停止并回报缺项，不要自行扩大或缩小范围。提案外的检查不实现。
+1. 按 `state.md` 的档位，从 `reference/thresholds.md` 的「档位组合」取对应检查组合，对照用户确认的提案第 5 节确认范围。提案明确写理由缩减的项不算缺项，记入报告第 3 节；未写明理由的缺项停止并回报，不要自行扩大或缩小范围。提案外的检查不实现。
 2. 每个检查分三步：先写一个应当失败的夹具；再实现检查器；最后运行夹具，确认检查器确实报错。
 3. 失败信息必须包含四项：文件、位置、期望值、修复动作。
-4. 每个检查器独立成文件，避免互相依赖；每个子会话写自己的 `docs-plan/checks/<checkId>.md` 分项报告，不写 `checks-report.md`。最后由一个串行会话汇总 `docs-plan/checks-report.md`，统一接入 `package.json` / `Makefile` / CI 中的一个入口。并发实现时，各子会话不改入口文件与汇总报告。
-5. 复跑模式：主会话在阶段备注写「复跑」时，只执行本步与报告第 5 节更新，复用已实现的检查器，不重建脚本、不改入口。对已完成迁移批次复跑死链、锚点与结构检查；发现失败不改文档，回报主会话退回对应批次。
+4. 每个检查器独立成文件，避免互相依赖；每个子会话写自己的 `docs-plan/checks/<checkId>.md` 分项报告，不写 `checks-report.md`。最后由一个串行汇总会话汇总 `docs-plan/checks-report.md`、写 `docs/checking.md`（本地命令与失败处理），并统一接入项目现有的测试或 lint 入口（按工具链，如 `package.json` scripts、`Makefile`、CI 配置）；不新建平行体系。并发实现时，各子会话不改入口文件、汇总报告与 `docs/checking.md`。
+5. 复跑模式：主会话在阶段备注写「复跑」时，只执行本步与报告第 5 节更新，复用已实现的检查器，不重建脚本、不改入口、不重写 `docs/checking.md`。对已完成迁移批次复跑死链、锚点与结构检查；发现失败不改文档，回报主会话退回对应批次。
 6. 启用检查 7 且 `docs/references-allowlist.yaml` 不存在时，先创建文件并登记扫描到的组织外链接（`url`、`owner`、`reason`）；无法确认 `owner` 或 `reason` 的条目写入报告第 3 节「未实现与理由」，不要留空占位。
-7. 写 `docs-plan/checks-report.md`。
+7. 串行汇总会话写 `docs-plan/checks-report.md`；并行分项会话跳过本步，只写自己的 `docs-plan/checks/<checkId>.md`。
 
 ## 报告结构
 
@@ -56,7 +56,8 @@
 - 每个已实现检查都有夹具，且夹具实际触发过失败；报告中能看到真实失败输出。
 - 失败信息四项齐全，能被不熟悉该检查的人直接修复。
 - 一条命令能跑完本次实现的全部检查。
-- 档位默认组合全部实现；如果整体跳过，已在 `state.md` 记录用户决定。提案缺项已退回，不静默缩小范围。
+- `docs/checking.md` 存在，写清本地命令、失败处理与复跑方式，命令与实际入口一致。
+- 按用户确认的提案清单全部实现；已批准缩减的项记入报告第 3 节。如果整体跳过，已在 `state.md` 记录用户决定；未写明理由的缺项已退回。
 - 启用检查 7 时 allowlist 存在且每条含 `url`、`owner`、`reason`；启用检查 8 时配对工具按提案给出的路径落地。
 - 接入点是现有入口，没有新建平行脚本体系。
 - 没有实现无法机械判定的规则；它们出现在报告的「未实现与理由」中，并指向评审清单。
