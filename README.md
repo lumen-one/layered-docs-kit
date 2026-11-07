@@ -13,13 +13,13 @@
 docs-management-kit/
   SKILL.md                    迁移套件入口：触发、档位、六阶段、边界、派发
   cards/                      迁移任务卡 00–05
-  reference/                  迁移参考：分层、决策记录、双语、检查规则
+  reference/                  迁移参考：分层、决策记录、双语、检查规则、规则演化
   state-template.md           迁移进度表模板
 
 docs-authoring-kit/
   SKILL.md                    撰写套件入口：触发、档位、四阶段、边界
   cards/                      定契约、搭骨架、日常写、自查与升级
-  reference/                  规则、层级裁剪、模板、时点流程图
+  reference/                  规则、层级裁剪、模板、时点与规则演化流程图
 
 README.md                     本文件
 ```

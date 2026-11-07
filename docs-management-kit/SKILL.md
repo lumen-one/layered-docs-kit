@@ -59,6 +59,7 @@ description: 把项目中零散、重复、过期、缺少入口的文档整理�
 - 把产物路径和一句备注写进 `docs-plan/state.md`（模板见 `state-template.md`）。
 - 向用户回报：产物路径、未达标项、需要用户决定的事、建议下一步。
 - 阶段完成由用户提交；用户明确授权时才代提交。
+- 顺带记一笔规则摩擦：这次有没有规则冲突、被迫绕开、没覆盖、或引用了失效事实。有就追加到 `docs-plan/rule-signals.md`，只记录不决策；判断方法见 `reference/rule-evolution.md`。
 
 ## 派发子会话
 
@@ -86,6 +87,8 @@ skill 目录：<本 skill 的绝对路径>
 | `reference/decisions.md` | 要建决策记录时 |
 | `reference/bilingual.md` | 要启用双语时 |
 | `reference/checks.md` | 要设计自动检查时 |
+| `reference/rule-evolution.md` | 要记录规则摩擦、判断规则该不该改时 |
+| `reference/rule-evolution-flow.md` | 想看清规则演化闭环时 |
 | `state-template.md` | 建进度表时复制 |
 
 ## 交付物
