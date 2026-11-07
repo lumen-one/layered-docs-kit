@@ -21,6 +21,12 @@ docs-authoring-kit/
   cards/                      定契约、搭骨架、日常写、自查与升级
   reference/                  规则、层级裁剪、模板、时点与规则演化流程图
 
+simulations/
+  agent-reads-docs.md         效果演示：Agent 只靠建好的文档完成一次真实改动
+  agent-reads-docs-flow.md    配套图表：读取路由、读写时序、断点对比
+  agent-migrates-docs.md      效果演示：Agent 迁移一个老项目的存量文档
+  agent-migrates-docs-flow.md 配套图表：六阶段、单批动作、回退取证
+
 README.md                     本文件
 ```
 
@@ -37,6 +43,22 @@ README.md                     本文件
 
 - 对 Agent 说“整理这个项目的文档”“文档太乱了”，触发迁移套件。Agent 先看现场，再建议快速版、标准版或深度版。
 - 对 Agent 说“新项目文档规则怎么定”“从零写文档”“README / 架构文档怎么写”，触发撰写套件。Agent 先问四个问题，再给最小骨架。
+
+## 效果演示
+
+想知道这套 skill 建立或迁移之后的文档实际怎么用、怎么整理，直接看这两组：
+
+**从零建立的文档，下一轮怎么被使用**
+
+- [Agent 读文档的完整推演](simulations/agent-reads-docs.md)：固定一个样例项目，让 Agent 在不重新加载 skill 的情况下完成一次“加重试配置 + 改退避策略”的真实改动，逐步记录它读了什么、据此做了什么判断、最后同步了哪几处文档。
+- [配套图表](simulations/agent-reads-docs-flow.md)：读取路由、一次功能开发的读写时序、极简档断点对比、目录移动的链接修复范围。
+
+**老项目的存量文档，怎么迁移**
+
+- [Agent 迁移文档的完整推演](simulations/agent-migrates-docs.md)：固定一个重复、过期、缺入口的样例项目，按六阶段走完迁移，包含打 tag 留回退点、分批验收、用旧文档补齐遗漏事实的过程。
+- [配套图表](simulations/agent-migrates-docs-flow.md)：六阶段流程、单批迁移动作、tag 取证时序、迁移前后的事实归属对比。
+
+这两组推演也是效果验收的依据：文档建得好不好，不看写得多全，看 Agent 不加载 skill 时能不能走对；迁移做得好不好，不看改了多少文件，看每条事实是不是只有一个家。`simulations/` 只用于效果演示，不参与两个 Skill 的打包。
 
 ## 开发
 
